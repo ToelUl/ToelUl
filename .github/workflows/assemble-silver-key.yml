@@ -1,0 +1,36 @@
+name: Assemble Silver Key
+
+on:
+  push:
+    paths:
+      - ".deploy/silver-key/READY"
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble SVG
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+          base64 --decode .deploy/silver-key/payload.svg.gz.b64 | gzip -dc > assets/silver-key-banner.svg
+          echo "6d766da8bae62ee65c95355c3301cae819fa57a6b67975760a0a38de46b63c34  assets/silver-key-banner.svg" | sha256sum -c -
+
+      - name: Commit SVG
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/silver-key-banner.svg
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Add Silver Key profile banner"
+          git push
