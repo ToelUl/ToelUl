@@ -20,7 +20,7 @@ jobs:
           set -euo pipefail
           mkdir -p assets
           base64 --decode .deploy/silver-key/payload.svg.gz.b64 | gzip -dc > assets/silver-key-banner.svg
-          echo "6d766da8bae62ee65c95355c3301cae819fa57a6b67975760a0a38de46b63c34  assets/silver-key-banner.svg" | sha256sum -c -
+          echo "f888240d55090f7f3d8f58c4ba6a98da674491becd398f8aac26def2c1fda28a  assets/silver-key-banner.svg" | sha256sum -c -
 
       - name: Commit SVG
         shell: bash
