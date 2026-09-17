@@ -14,23 +14,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Assemble SVG
+      - name: Verify SVG
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p assets
-          cat .deploy/silver-key/payload-*.b64 | base64 --decode | gzip -dc > assets/silver-key-banner.svg
-          echo "f888240d55090f7f3d8f58c4ba6a98da674491becd398f8aac26def2c1fda28a  assets/silver-key-banner.svg" | sha256sum -c -
+          cat .deploy/silver-key/payload-*.b64 | base64 --decode | gzip -dc > /tmp/silver-key-banner.svg
+          echo "f888240d55090f7f3d8f58c4ba6a98da674491becd398f8aac26def2c1fda28a  /tmp/silver-key-banner.svg" | sha256sum -c -
+          cmp -s /tmp/silver-key-banner.svg assets/silver-key-banner.svg
 
-      - name: Commit SVG
+      - name: Clean deployment scaffolding
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/silver-key-banner.svg
+          rm -rf .deploy
+          rm -f .github/workflows/assemble-silver-key.yml
+          git add -A
           if git diff --cached --quiet; then
             exit 0
           fi
-          git commit -m "Add Silver Key profile banner"
+          git commit -m "Clean Silver Key deployment scaffolding"
           git push
